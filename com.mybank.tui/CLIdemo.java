@@ -4,9 +4,6 @@ import com.mybank.domain.Bank;
 import com.mybank.domain.CheckingAccount;
 import com.mybank.domain.Customer;
 import com.mybank.domain.SavingsAccount;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +15,14 @@ import org.fusesource.jansi.*;
 
 /**
  * Sample application to show how jLine can be used.
+ *
+ * @author sandarenu
+ *
+ */
+/**
+ * Console client for 'Banking' example
+ *
+ * @author Alexander 'Taurus' Babich
  */
 public class CLIdemo {
 
@@ -68,7 +73,7 @@ public class CLIdemo {
                         System.out.println(Bank.getCustomer(i).getLastName() + "\t\t" + Bank.getCustomer(i).getFirstName() + "\t\t$" + Bank.getCustomer(i).getAccount(0).getBalance());
                     }
                 } else {
-                    System.out.println(ANSI_RED + "Your bank has no customers!" + ANSI_RESET);
+                    System.out.println(ANSI_RED+"Your bank has no customers!"+ANSI_RESET);
                 }
 
             } else if (line.indexOf("customer") != -1) {
@@ -79,23 +84,23 @@ public class CLIdemo {
                         if (strNum != null) {
                             custNo = Integer.parseInt(strNum);
                         }
-                    }
+                    }                    
                     Customer cust = Bank.getCustomer(custNo);
-                    String accType = cust.getAccount(0) instanceof CheckingAccount ? "Checking" : "Savings";
-
+                    String accType = cust.getAccount(0) instanceof CheckingAccount ? "Checkinh" : "Savings";
+                    
                     AttributedStringBuilder a = new AttributedStringBuilder()
                             .append("\nThis is detailed information about customer #")
                             .append(Integer.toString(custNo), AttributedStyle.BOLD.foreground(AttributedStyle.RED))
                             .append("!");
 
                     System.out.println(a.toAnsi());
-
+                    
                     System.out.println("\nLast name\tFirst Name\tAccount Type\tBalance");
                     System.out.println("-------------------------------------------------------");
                     System.out.println(cust.getLastName() + "\t\t" + cust.getFirstName() + "\t\t" + accType + "\t$" + cust.getAccount(0).getBalance());
                 } catch (Exception e) {
                     System.out
-                            .println(ANSI_RED + "ERROR! Wrong customer number!" + ANSI_RESET);
+                        .println(ANSI_RED + "ERROR! Wrong customer number!" + ANSI_RESET);
                 }
             } else if ("exit".equals(line)) {
                 System.out.println("Exiting application");
@@ -117,8 +122,8 @@ public class CLIdemo {
 
     private void printHelp() {
         System.out.println("help\t\t\t- Show help");
-        System.out.println("customers\t\t- Show list of customers");
-        System.out.println("customer 'index'\t- Show customer details");
+        System.out.println("customer\t\t- Show list of customers");
+        System.out.println("customer \'index\'\t- Show customer details");
         System.out.println("exit\t\t\t- Exit the app");
 
     }
@@ -136,38 +141,15 @@ public class CLIdemo {
         }
     }
 
-    private void loadCustomersFromFile(String fileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            int numberOfCustomers = Integer.parseInt(reader.readLine());
-            for (int i = 0; i < numberOfCustomers; i++) {
-                String[] customerData = reader.readLine().split("\t");
-                String firstName = customerData[1];
-                String lastName = customerData[0];
-                int numberOfAccounts = Integer.parseInt(customerData[2]);
-                Bank.addCustomer(firstName, lastName);
-                Customer customer = Bank.getCustomer(i);
-                for (int j = 0; j < numberOfAccounts; j++) {
-                    String[] accountData = reader.readLine().split("\t");
-                    String accountType = accountData[0];
-                    double balance = Double.parseDouble(accountData[1]);
-                    if (accountType.equals("C")) {
-                        double overdraft = Double.parseDouble(accountData[2]);
-                        customer.addAccount(new CheckingAccount(balance, overdraft));
-                    } else if (accountType.equals("S")) {
-                        double interestRate = Double.parseDouble(accountData[2]);
-                        customer.addAccount(new SavingsAccount(balance, interestRate));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.out.println(ANSI_RED + "ERROR! Unable to load customer data from file." + ANSI_RESET);
-        }
-    }
-
     public static void main(String[] args) {
+
+        Bank.addCustomer("John", "Doe");
+        Bank.addCustomer("Fox", "Mulder");
+        Bank.getCustomer(0).addAccount(new CheckingAccount(2000));
+        Bank.getCustomer(1).addAccount(new SavingsAccount(1000, 3));
+
         CLIdemo shell = new CLIdemo();
         shell.init();
-        shell.loadCustomersFromFile("test.dat");
         shell.run();
     }
 }
